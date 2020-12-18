@@ -1,0 +1,8 @@
+.title {
+	position: relative;
+}
+
+.weather-icon {
+	position: absolute;
+	margin-left: 1rem;
+}
