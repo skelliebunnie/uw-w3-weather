@@ -1,3 +1,16 @@
+#page-container {
+	min-height: 100%;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: space-between;
+}
+
+#page-container > .header,
+#page-container > .main-content,
+#page-container > .footer {
+	flex: 1;
+}
+
 .title {
 	position: relative;
 }
@@ -14,30 +27,76 @@
 .card.forecast-card .card-header {
 	position: absolute;
 	z-index: 10;
-	background: linear-gradient(to bottom, rgba(255,255,255,1) 35%, rgba(255,255,255,0));
 	width: 100%;
-	height: 8rem;
 	padding: 0;
+	background-color: rgba(21,21,21,0.75);
 }
 
 .forecast-card .card-header-title {
-	align-items: flex-start;
+	align-items: stretch;
 	justify-content: space-between;
+	width: 100%;
 	font-size: x-large;
-	padding: 0.2rem 0.2rem 0.2rem 0.7rem;
+	padding: 0;
 	display: flex;
 	flex-flow: row nowrap;
+	color: white;
 }
 
 .forecast-date,
 .forecast-icon {
 	flex: 1;
+	margin: 0;
+}
+
+.forecast-date {
+	padding: 0.2rem 0 0.7rem 1rem;
 }
 
 .forecast-icon {
-	padding-top: 0.6rem;
-	margin-left: 2rem;
+	padding: 0.6rem 1rem 0 0;
+	margin-right: 0;
+	text-align: right;
+	background: linear-gradient(to left, rgba(21,21,21,1), rgba(21,21,21,0));
 }
 
 .has-text-alert { color: #FF8F39; }
 .has-background-alert { background-color: #FF8F39; }
+
+@media all and (max-width: 526px) {
+	.columns.is-multiline .column {
+		width: 100%;
+	}
+}
+
+@media all and (max-width: 768px) {
+	/*.columns.is-multiline {
+		display: flex;
+	}*/
+
+	.columns.is-multiline .column {
+		margin: 0 auto;
+		/*width: 50%;*/
+	}
+
+	.columns.is-multiline .column .card-image {
+		max-height: 128px;
+		overflow: hidden;
+	}
+}
+
+@media all and (max-width: 1023px) {
+	.columns.main-content aside {
+		width: 100%;
+		padding-right: 2rem;
+	}
+
+	
+}
+
+@media all and (max-width: 1400px) {
+	.columns.forecast-columns.is-multiline .column {
+		min-width: 33.3%;
+		margin: 0 auto;
+	}
+}
