@@ -6,3 +6,38 @@
 	position: absolute;
 	margin-left: 1rem;
 }
+
+.card.forecast-card {
+	position: relative;
+}
+
+.card.forecast-card .card-header {
+	position: absolute;
+	z-index: 10;
+	background: linear-gradient(to bottom, rgba(255,255,255,1) 35%, rgba(255,255,255,0));
+	width: 100%;
+	height: 8rem;
+	padding: 0;
+}
+
+.forecast-card .card-header-title {
+	align-items: flex-start;
+	justify-content: space-between;
+	font-size: x-large;
+	padding: 0.2rem 0.2rem 0.2rem 0.7rem;
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.forecast-date,
+.forecast-icon {
+	flex: 1;
+}
+
+.forecast-icon {
+	padding-top: 0.6rem;
+	margin-left: 2rem;
+}
+
+.has-text-alert { color: #FF8F39; }
+.has-background-alert { background-color: #FF8F39; }

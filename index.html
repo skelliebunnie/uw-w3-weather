@@ -23,7 +23,7 @@
 		</section>
 	</header>
 	<div class="columns my-0">
-		<aside class="column is-one-third has-background-info-light">
+		<aside class="column is-one-fifth has-background-info-light">
 			<section class="container pl-4">
 				<form>
 					<div class="field has-addons">
@@ -46,33 +46,174 @@
 			</section>
 		</aside>
 		<main class="column has-background-white">
-			<div class="container">
-				<div class="card mr-4">
-					<div class="card-content">
-						<p class="title">City (M/D/YYYY) <span class="weather-icon"><i class="fad fa-cloud-drizzle has-text-info fa-2x"></i></span></p>
-						<table class="table">
-							<tbody>
-								<tr>
-									<td>Temperature</td>
-									<td id="temp"><span>90.9</span>&deg;F</td>
-								</tr>
-								<tr>
-									<td>Humidity</td>
-									<td id="humidity">41%</td>
-								</tr>
-								<tr>
-									<td>Wind Speed</td>
-									<td id="wind"><span>4.7</span> MPH</td>
-								</tr>
-								<tr>
-									<td>UV Index</td>
-									<td id="uv" data-uv-index="severe"><p class="has-background-danger has-text-white px-4 py-1">9.49</p></td>
-								</tr>
-							</tbody>
-						</table>
+			<section class="section pb-0 my-0">
+				<div class="container">
+					<div class="card mr-4">
+						<div class="card-content">
+							<p class="title">City (M/D/YYYY) <span class="weather-icon"><i class="fad fa-cloud-drizzle has-text-info fa-2x"></i></span></p>
+							<table class="table">
+								<tbody>
+									<tr>
+										<td>Temperature</td>
+										<td id="temp"><span>90.9</span>&deg;F</td>
+									</tr>
+									<tr>
+										<td>Humidity</td>
+										<td id="humidity">41%</td>
+									</tr>
+									<tr>
+										<td>Wind Speed</td>
+										<td id="wind"><span>4.7</span> MPH</td>
+									</tr>
+									<tr>
+										<td>UV Index</td>
+										<td id="uv" data-uv-index="severe"><p class="has-background-danger has-text-white px-4 py-1">9.49</p></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
-			</div>
+			</section>
+			<section class="section pb-0">
+				<div class="container px-0">
+					<h3 class="title px-0">5-Day Forecast</h3>
+				</div>
+			</section>
+			<section class="section my-0 mr-4">
+				<div class="columns px-6 mx-1">
+					<div class="column">
+						<div class="card forecast-card">
+							<header class="card-header">
+								<p class="card-header-title"><span class="forecast-date">12/18/2020</span> <span class="forecast-icon"><i class="fad fa-cloud-drizzle has-text-info"></i></span></p>
+							</header>
+							<div class="card-image">
+								<figure class="image is4by3"><img src="https://picsum.photos/seed/drizzle/400/300" alt=""></figure>
+							</div>
+							<div class="card-content">
+								<div class="content">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td>Temperature</td>
+												<td id="temp"><span>90.9</span>&deg;F</td>
+											</tr>
+											<tr>
+												<td>Humidity</td>
+												<td id="humidity">41%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="card forecast-card">
+							<header class="card-header">
+								<p class="card-header-title"><span class="forecast-date">12/19/2020</span> <span class="forecast-icon"><i class="fad fa-clouds has-text-grey"></i></span></p>
+							</header>
+							<div class="card-image">
+								<figure class="image is4by3"><img src="https://picsum.photos/seed/cloudy/400/300" alt=""></figure>
+							</div>
+							<div class="card-content">
+								<div class="content">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td>Temperature</td>
+												<td id="temp"><span>90.9</span>&deg;F</td>
+											</tr>
+											<tr>
+												<td>Humidity</td>
+												<td id="humidity">41%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="card forecast-card">
+							<header class="card-header">
+								<p class="card-header-title"><span class="forecast-date">12/20/2020</span> <span class="forecast-icon"><i class="fad fa-sun has-text-alert"></i></span></p>
+							</header>
+							<div class="card-image">
+								<figure class="image is4by3"><img src="https://picsum.photos/seed/sunny/400/300" alt=""></figure>
+							</div>
+							<div class="card-content">
+								<div class="content">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td>Temperature</td>
+												<td id="temp"><span>90.9</span>&deg;F</td>
+											</tr>
+											<tr>
+												<td>Humidity</td>
+												<td id="humidity">41%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="card forecast-card">
+							<header class="card-header">
+								<p class="card-header-title"><span class="forecast-date">12/21/2020</span> <span class="forecast-icon"><i class="fad fa-clouds-sun has-text-grey-dark"></i></span></p>
+							</header>
+							<div class="card-image">
+								<figure class="image is4by3"><img src="https://picsum.photos/seed/overcast/400/300" alt=""></figure>
+							</div>
+							<div class="card-content">
+								<div class="content">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td>Temperature</td>
+												<td id="temp"><span>90.9</span>&deg;F</td>
+											</tr>
+											<tr>
+												<td>Humidity</td>
+												<td id="humidity">41%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="column">
+						<div class="card forecast-card">
+							<header class="card-header">
+								<p class="card-header-title"><span class="forecast-date">12/22/2020</span> <span class="forecast-icon"><i class="fad fa-snowflake has-text-primary"></i></span></p>
+							</header>
+							<div class="card-image">
+								<figure class="image is4by3"><img src="https://picsum.photos/seed/snowflake/400/300" alt=""></figure>
+							</div>
+							<div class="card-content">
+								<div class="content">
+									<table class="table">
+										<tbody>
+											<tr>
+												<td>Temperature</td>
+												<td id="temp"><span>90.9</span>&deg;F</td>
+											</tr>
+											<tr>
+												<td>Humidity</td>
+												<td id="humidity">41%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
 		</main>
 	</div>
 	<footer class="footer has-background-dark has-text-light">
