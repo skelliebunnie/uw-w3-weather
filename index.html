@@ -2,9 +2,16 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- favicon -->
 	<link rel="shortcut icon" type="image/png" href="skelliebunnie-ghost-icon.png"/>
+	
 	<title>Weather Dashboard</title>
+
+	<!-- Font Awesome -->
+	<script src="https://kit.fontawesome.com/adc1a4d4e8.js" crossorigin="anonymous"></script>
+	<!-- Bulma CSS Framework -->
 	<link rel="stylesheet" href="assets/bulma.min.css">
+	<!-- custom styles -->
 	<link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
@@ -18,7 +25,16 @@
 	<div class="columns my-0">
 		<aside class="column is-one-third has-background-info-light">
 			<section class="container pl-4">
-				<p>search here</p>
+				<form>
+					<div class="field has-addons">
+						<div class="control is-expanded">
+							<input type="text" class="input" placeholder="city">
+						</div>
+						<div class="control">
+							<a class="button is-info"><i class="fas fa-search"></i></a>
+						</div>
+					</div>
+				</form>
 			</section>
 		</aside>
 		<main class="column has-background-white">
