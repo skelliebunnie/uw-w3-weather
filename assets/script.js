@@ -1,46 +1,88 @@
 $(document).ready(function() {
 	/**
-	 * Variable Declaration
+	 * VARIABLES
+	 * apiKey {string} API Key for OpenWeather
+	 * 
 	 * todayDate {string} formatted date
 	 * next5Dates {array, strings} dates for today + 1 ... 5 days, formatted
-	 * apiKey {string} API Key for OpenWeather
 	 * cityName {string} defaults to Everett if search val is null/undefined
 	 * 		> defaults to last searched city name if local storage is present
 	 * queryURL {string} URL for OWM API call
 	 */
-	var todayDate = dayjs().format("MM/DD/YYYY");
-	var next5Dates = [
-		dayjs().add(1, 'day').format("MM/DD/YYYY"),
-		dayjs().add(2, 'day').format("MM/DD/YYYY"),
-		dayjs().add(3, 'day').format("MM/DD/YYYY"),
-		dayjs().add(4, 'day').format("MM/DD/YYYY"),
-		dayjs().add(5, 'day').format("MM/DD/YYYY")
-	];
-
 	var apiKey = "92d3accee7566d3eae267cdb90f96b66";
-	var location = "everett";
-	var searchList = JSON.parse(localStorage.getItem('weather-search-last')) || [location];
-	if(searchList.length > 1) {
-		location = searchList[0];
+
+	var todayDate = dayjs().format("MM/DD/YYYY");
+
+	var startLocation = "everett";
+	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-last')) || [startLocation, "San Francisco"];
+	if(previouslySearched.length > 1) {
+		startLocation = previouslySearched[0];
 	}
+
 	// adding units=imperial returns temps in Farenheit
 	// and wind in MPH, so no conversion math required!
-	var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid=" + apiKey + "&units=imperial&q=" + location;
+	var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid=" + apiKey + "&units=imperial&q=";
 
 	// add today's date to the page
 	$("#todayDate").text(`(${todayDate})`);
-	$("#location").text(location);
-	$(".location-prev:first").text(location);
-	// $(".location-prev").each(function(i,v) {
-		
-	// });
+	$("#location").text(startLocation);
+	
+	$(".location-prev:first").text(startLocation).parents("a.panel-block").attr("data-location", startLocation);
 
-	function getWeather() {
+	// loop through the previouslySearched array
+	// starting from index 1 since 0 is in the first
+	// ".location-prev" block and create new blocks
+	// for each of the previously searched locations
+	for(var i = 1; i < previouslySearched.length; i++) {
+		// clone the first block so we don't have to rebuild
+		// all the HTML
+		var original = $("#previouslySearched a:first-child");
+		// this is a "deep clone", otherwise the 
+		// icon in the a.panel-block won't copy
+		// having 'true' in .clone() ensures that bound event handlers
+		// also copy over, so clicking on the new block will work
+		var newBlock = original.clone(true).data("arr", $.extend([], original.data("arr")));
+		// remove the active class, and set the text 
+		// and data-location to this location
+		newBlock.removeClass("is-active").attr("data-location", previouslySearched[i]);
+		newBlock.children(".location-prev").text(previouslySearched[i]);
+		// append the newly cloned element
+		$("#previouslySearched").append(newBlock);
+	}
+
+	// update the dates for the forecast blocks
+	$(".forecast-card").each(function(i,v) {
+		var newDate = dayjs().add(i + 1, 'day').format("MM/DD/YYYY");
+		console.log(newDate);
+		$(this).find(".forecast-date").text(newDate);
+	});
+
+	// handle clicking on the previously-searched buttons in the nav
+	$(".panel-block").on("click", function(e) {
+		e.preventDefault();
+		// get the new location to search
+		var newLocation = $(this).attr("data-location");
+		console.log(newLocation);
+
+		// remove active class from all the other links
+		$(".panel-block").each(function() {
+			$(this).removeClass("is-active");
+		});
+		// make this (the clicked on) link active
+		$(this).addClass("is-active");
+
+		// actually get the weather for the location!
+		getWeather(newLocation);
+	});
+
+	// now for the weather ...
+	function getWeather(thisLocation) {
 		$.ajax({
-      url: queryURL,
+      url: `${queryURL}${thisLocation}`,
       method: "GET"
     }).then(function(response) {
     	console.log(response);
+    	$("#location").text(thisLocation);
 
     	// define variables for data
     	var weatherID = response.weather[0].id;
@@ -185,6 +227,8 @@ $(document).ready(function() {
 
     	$("#todayWeather .weather-icon").html(weatherIcon);
     	$("#temp").html(`${tempMax}&deg; F / ${tempMin}&deg; F`);
+    	$("#humidity").text(humidity);
+    	$("#wind").text(windSpeed);
     	$("#sunrise > p").text(sunrise);
     	$("#sunset > p").text(sunset);
 
@@ -194,6 +238,7 @@ $(document).ready(function() {
     });
 	}
 
+	// how murderous does the sun feel today?
 	function getUVI(lat, lon) {
 		var uviQueryURL = "http://api.openweathermap.org/data/2.5/uvi?lat="+ lat +"&lon="+ lon +"&cnt=1&start="+ todayDate +"&end="+ todayDate +"&appid=" + apiKey;
 
@@ -201,8 +246,10 @@ $(document).ready(function() {
       url: uviQueryURL,
       method: "GET"
     }).then(function(response) {
-    	console.log(response);
-    	var uvi = $("<p>", {class: "px-4 py-1"});
+    	// console.log(response);
+    	$("#uvi").empty();
+
+    	var uvi = $("<p>", {class: "px-4 py-1 is-relative"});
 
     	if(response.value >= 0 && response.value <= 2) {
     		uvi.addClass("has-background-success has-text-white");
@@ -216,16 +263,29 @@ $(document).ready(function() {
     		uvi.addClass("has-background-danger has-text-white");
     		$("#uvi").attr("data-uvi", "high");
 
-    	} else {
+    	} else if(response.value >= 8 && response.value <= 10) {
     		uvi.addClass("has-background-danger-dark has-text-white");
     		$("#uvi").attr("data-uvi", "very high");
+
+    	} else {
+    		var warningIcon = $("<i>", {class: "fad fa-exclamation-triangle is-pulled-right mt-1"});
+    		uvi.addClass("has-background-violet has-text-white");
+    		$("#uvi").attr("data-uvi", "extreme");
+    		$(uvi).append(warningIcon);
     	}
 
-    	uvi.text(response.value);
+    	uvi.prepend(response.value);
     	$("#uvi").html(uvi);
     });
 
 	}
 
-	getWeather();
+	// what kind of weather can we look forward too this week?
+	function getForecast(thisLocation) {
+		return thisLocation;
+	}
+
+	getWeather(startLocation);
+
+	// getForecast();
 });
