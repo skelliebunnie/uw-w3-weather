@@ -11,6 +11,11 @@
 	flex: 1;
 }
 
+main {
+	background-size: cover;
+	background-position: center center;
+}
+
 .title {
 	position: relative;
 }
@@ -23,6 +28,10 @@
 .weather-icon {
 	position: absolute;
 	margin-left: 1rem;
+}
+
+#forecast-title .column {
+	background: rgba(255,255,255,0.75);
 }
 
 .card.forecast-card {
@@ -106,4 +115,18 @@
 		min-width: 33.3%;
 		margin: 0 auto;
 	}
+}
+
+@media all and (min-width: 1024px) {
+	#todayWeather { max-width: 70%; }
+	#todayWeather .card-content { padding-left: 2.5rem; }
+}
+
+@media all and (min-width: 1280px) {
+	#todayWeather {max-width: 55%; }
+	#todayWeather .card-content { padding-left: 3rem; }
+}
+
+@media all and (min-width: 1640px) {
+	#todayWeather .card-content { padding-left: 6rem; }
 }
