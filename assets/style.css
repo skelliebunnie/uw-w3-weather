@@ -15,6 +15,11 @@
 	position: relative;
 }
 
+#location,
+.location-prev {
+	text-transform: capitalize;
+}
+
 .weather-icon {
 	position: absolute;
 	margin-left: 1rem;

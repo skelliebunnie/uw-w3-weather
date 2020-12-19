@@ -23,20 +23,20 @@ $(document).ready(function() {
 	if(searchList.length > 1) {
 		location = searchList[0];
 	}
-	var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid=" + apiKey + "&q=" + location;
+	// adding units=imperial returns temps in Farenheit
+	// and wind in MPH, so no conversion math required!
+	var queryURL = "https://api.openweathermap.org/data/2.5/weather?appid=" + apiKey + "&units=imperial&q=" + location;
 
-	function getWeather() {
+	// add today's date to the page
+	$("#todayDate").text(`(${todayDate})`);
+	$("#location").text(location);
+
+	function getCurrentWeather() {
 		$.ajax({
       url: queryURL,
       method: "GET"
     }).then(function(response) {
     	console.log(response);
-    	var weatherType = response.weather[0].main;
-    	var sunrise = dayjs(response.sys.sunrise * 1000).format("h:mm A");
-    	var sunset = dayjs(response.sys.sunset * 1000).format("h:mm A");
-
-    	$("#sunrise > p").text(sunrise);
-    	$("#sunset > p").text(sunset);
 
     });
 	}
