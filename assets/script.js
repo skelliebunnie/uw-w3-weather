@@ -31,6 +31,12 @@ $(document).ready(function() {
       method: "GET"
     }).then(function(response) {
     	console.log(response);
+    	var weatherType = response.weather[0].main;
+    	var sunrise = dayjs(response.sys.sunrise * 1000).format("h:mm A");
+    	var sunset = dayjs(response.sys.sunset * 1000).format("h:mm A");
+
+    	$("#sunrise > p").text(sunrise);
+    	$("#sunset > p").text(sunset);
 
     });
 	}

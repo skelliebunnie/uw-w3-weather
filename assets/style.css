@@ -62,6 +62,8 @@
 
 .has-text-alert { color: #FF8F39; }
 .has-background-alert { background-color: #FF8F39; }
+.has-text-alert-dark { color: #f74d00; }
+.has-background-alert-dark { background-color: #f74d00; }
 
 @media all and (max-width: 526px) {
 	.columns.is-multiline .column {
