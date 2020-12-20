@@ -12,6 +12,11 @@ $(document).ready(function() {
 	var apiKey = "92d3accee7566d3eae267cdb90f96b66";
 
 	var todayDate = dayjs().format("MM/DD/YYYY");
+  
+  // https://stackoverflow.com/a/34405528
+  var timezone = new Date().toLocaleTimeString('en-us', {timeZoneName: 'short'}).split(' ')[2];
+
+  var currentTime = dayjs().format("h:mm A") +" "+ timezone;
 
 	var startLocation = "everett";
 	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-prev')) || [startLocation, "San Francisco"];
@@ -26,6 +31,7 @@ $(document).ready(function() {
 	// add today's date to the page
 	$("#todayDate").text(`(${todayDate})`);
 	$("#location").text(startLocation);
+  $("#currentTime").text(currentTime);
 	// $("#search").val(startLocation);
 
 	updateNavList(startLocation);
