@@ -24,6 +24,7 @@
 }
 
 main {
+	position: relative;
 	background-size: cover;
 	background-position: center center;
 }
@@ -48,6 +49,9 @@ main {
 
 .card.forecast-card {
 	position: relative;
+	border: 4px solid white;
+	border-radius: 0;
+	box-shadow: 2px 2px 5px -1px black;
 }
 
 .card.forecast-card .card-header {
@@ -84,6 +88,10 @@ main {
 	margin-right: 0;
 	text-align: right;
 	background: linear-gradient(to left, rgba(21,21,21,1), rgba(21,21,21,0));
+}
+
+.forecast-card .card-image img {
+	filter: brightness(1.25) contrast(1.2) grayscale(0.5);
 }
 
 /* MEDIA QUERIES */
