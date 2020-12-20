@@ -90,25 +90,15 @@ $(document).ready(function() {
     	var tempMin = (response.main.temp_min).toFixed(1);
     	var humidity = response.main.humidity + "%";
     	var windSpeed = response.wind.speed + " MPH";
-    	var sunrise = dayjs(response.sys.sunrise * 1000).format("h:mm A");
-    	var sunset = dayjs(response.sys.sunset * 1000).format("h:mm A");
+    	var sunrise = response.sys.sunrise;
+    	var sunset = response.sys.sunset;
+    	var sunriseFormatted = dayjs(sunrise * 1000).format("h:mm A");
+  		var sunsetFormatted = dayjs(sunset * 1000).format("h:mm A");
 
-    	// for calculating whether or not the current time
-    	// is after sunset (and before midnight)
-    	// or before sunrise (and after midnight)
-    	var nightCalcSunset = dayjs(response.sys.sunset * 1000).unix();
-    	var nightCalcSunrise = dayjs(response.sys.sunrise * 1000).unix();
-    	var nightCalcTime = dayjs().unix();
-
-    	// to simplify the if/else statements below
-    	var night = false;
-    	if( nightCalcSunset < nightCalcTime || nightCalcTime < nightCalcSunrise ) {
-    		night = true;
-    		if(response['weather'].length > 1) {
-    			weatherID = response.weather[1].id;
-    		}
-    	}
-
+    	var night = isNight(weatherID, sunrise, sunset);
+    	if(night && response['weather'].length > 1) {
+  			weatherID = response.weather[1].id;
+  		}
     	var iconAndImage = getIconsAndImages(weatherID, night);
 
     	$("main").css({"background-image": "url("+ iconAndImage.image +")"});
@@ -117,8 +107,8 @@ $(document).ready(function() {
     	$("#temp").html(`${tempMax}&deg; F / ${tempMin}&deg; F`);
     	$("#humidity").text(humidity);
     	$("#wind").text(windSpeed);
-    	$("#sunrise > p").text(sunrise);
-    	$("#sunset > p").text(sunset);
+    	$("#sunrise > p").text(sunriseFormatted);
+    	$("#sunset > p").text(sunsetFormatted);
 
     	// uv index is NOT returned in a weather call,
 			// requiring the use of the UVI API
@@ -186,14 +176,40 @@ $(document).ready(function() {
     	 * response.list[27] is forecast for noon 4 days from now
     	 * response.list[35] is forecast for noon 5 days from now
     	 */
-    	var day1 = response.list[3];
-    	var day2 = response.list[11];
-    	var day3 = response.list[19];
-    	var day4 = response.list[27];
-    	var day5 = response.list[35];
+    	var forecasts = [
+    		response.list[3],
+    		response.list[11],
+    		response.list[19],
+    		response.list[27],
+    		response.list[35]
+    	];
 
-    	console.log(day1);
+    	forecasts.forEach(function(i,v) {
+    		var index = i + 1;
+    		var card = $(`.forecast-card:nth-child[index]`);
+    		var iconAndImage = getIconsAndImages(v.weather[0].id);
+    		card.find(".forecast-icon").html(iconAndImage.icon);
+    		card.find(".card-image img").attr("src", iconAndImage.image);
+    	});
+
     });
+	}
+
+	function isNight(weatherID, sunrise, sunset) {
+  	// for calculating whether or not the current time
+  	// is after sunset (and before midnight)
+  	// or before sunrise (and after midnight)
+  	var nightCalcSunset = dayjs(sunset * 1000).unix();
+  	var nightCalcSunrise = dayjs(sunrise * 1000).unix();
+  	var nightCalcTime = dayjs().unix();
+
+  	// to simplify the if/else statements below
+  	var night = false;
+  	if( nightCalcSunset < nightCalcTime || nightCalcTime < nightCalcSunrise ) {
+  		night = true;
+  	}
+
+  	return night;
 	}
 
 	function getIconsAndImages(weatherID, night) {
@@ -207,115 +223,115 @@ $(document).ready(function() {
   	if(weatherID == 801) {
   		if(night) {
   			iconAndImage.icon = "<i class='fad fa-cloud-moon has-text-grey fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/kelly-sikkema--unsplash--801-804-night.jpg';
+  			iconAndImage.image = 'assets/images/801-802-Night--KellySikkema-unsplash.jpg';
 
   		} else {
   			iconAndImage.icon = "<i class='fad fa-cloud-sun has-text-grey fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/ethan-medrano--unsplash--801.jpg';
+  			iconAndImage.image = 'assets/images/801-Day--EthanMedrano-unsplash.jpg';
   		}
 
   	} else if(weatherID == 802) {
 			if(night) {
 				iconAndImage.icon = "<i class='fad fa-clouds-moon has-text-grey-dark fa-2x'></i>";
-				iconAndImage.image = 'assets/images/kelly-sikkema--unsplash--801-804-night.jpg';
+				iconAndImage.image = 'assets/images/801-802-Night--KellySikkema-unsplash.jpg';
 
 			} else {
 				iconAndImage.icon = "<i class='fad fa-clouds-sun has-text-grey-dark fa-2x'></i>";
-				iconAndImage.image = 'assets/images/marc-wieland--unsplash--802.jpg';
+				iconAndImage.image = 'assets/images/802-Day--MarcWieland-unsplash.jpg';
 			}
 
   	} else if(weatherID == 803 || weatherID == 804) {
   		iconAndImage.icon = "<i class='fad fa-clouds has-text-grey-darker fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/kelly-sikkema--unsplash--801-804-night.jpg';
+  			iconAndImage.image = 'assets/images/803-804-Night--Swaminathan-flickr.jpg';
 
   		} else {
-  			iconAndImage.image = 'assets/images/barry-simon--unsplash--803-804.jpg';
+  			iconAndImage.image = 'assets/images/803-804-Day--MatthewPaulArgall-flickr.jpg';
   		}
   		
   	} else if(weatherID >= 500 && weatherID <= 504) {
   		iconAndImage.icon = "<i class='fad fa-cloud-showers has-text-info fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/eric-zhu--unsplash--500-531-night.jpg';
+  			iconAndImage.image = 'assets/images/500-504-Night--VVNincic-flickr.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/jose-fontano--unsplash--500-504.jpg';
+  			iconAndImage.image = 'assets/images/500-504-Day--JoseFontano-unsplash.jpg';
   		}
   		
   	} else if(weatherID == 511) {
   		iconAndImage.icon = "<i class='fad fa-cloud-sleet has-text-info-dark fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/eric-zhu--unsplash--500-531-night.jpg';
+  			iconAndImage.image = 'assets/images/522-Night--Isengardt-flickr.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/christian-spuller--unsplash--511.jpg';
+  			iconAndImage.image = 'assets/images/511-Day--ChristianSpuller-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 520 && weatherID <= 531) {
   		
   		if(night) {
   			iconAndImage.icon = "<i class='fad fa-cloud-moon-rain has-text-info-dark fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/eric-zhu--unsplash--500-531-night.jpg';
+  			iconAndImage.image = 'assets/images/520-531-Night--min33NY-flickr.jpg';
 
   		} else {
   			iconAndImage.icon = "<i class='fad fa-cloud-sun-rain has-text-info-dark fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/loren-gu--unsplash--520-531.jpg';
+  			iconAndImage.image = 'assets/images/520-531-Day--LorenGu-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 300 && weatherID <= 321) {
   		iconAndImage.icon = "<i class='fad fa-cloud-drizzle has-text-info fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/cayden-huang--unsplash--300-321-night.jpg';
+  			iconAndImage.image = 'assets/images/300-321-Night--CaydenHuang-unsplash.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/valentin-muller--unsplash--300-321.jpg';
+  			iconAndImage.image = 'assets/images/300-321-Day--ValentinMuller-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 200 && weatherID <= 232) {
   		
   		if(night) {
   			iconAndImage.icon = "<i class='fad fa-thunderstorm-moon has-text-black fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/lefty-kasdaglis--unsplash--200-232-night.jpg';
+  			iconAndImage.image = 'assets/images/200-232-Night--LeftyKasdaglis-unsplash.jpg';
   		} else {
   			iconAndImage.icon = "<i class='fad fa-thunderstorm-sun has-text-black fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/raychel-sanner--unsplash--200-232.jpg';
+  			iconAndImage.image = 'assets/images/200-232-Day--RaychelSanner-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 600 && weatherID <= 622) {
   		iconAndImage.icon = "<i class='fad fa-snowflake has-text-info fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/william-topa--unsplash--600-622-night.jpg';
+  			iconAndImage.image = 'assets/images/600-622-Day--WilliamTopa-unsplash.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/damian-mccoig--unsplash--600-622.jpg';
+  			iconAndImage.image = 'assets/images/600-622-Day--DamianMccoig-unsplash.jpg';
   		}
 
   	} else if(weatherID >= 701 && weatherID <= 762) {
   		iconAndImage.icon = "<i class='fad fa-fog has-text-grey fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/chandler-cruttenden--unsplash--701-762-night';
+  			iconAndImage.image = 'assets/images/701-762-Night--ChandlerCruttenden-unsplash.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/staffan-kjellvestad--unsplash--701-762.jpg';
+  			iconAndImage.image = 'assets/images/701-762-Day--StaffanKjellvestad-unsplash.jpg';
   		}
   		
   	} else if(weatherID == 771) {
   		iconAndImage.icon = "<i class='fad fa-wind has-text-grey fa-2x'></i>";
   		if(night) {
-  			iconAndImage.image = 'assets/images/nathan-anderson--unsplash--771-night.jpg';
+  			iconAndImage.image = 'assets/images/771-Night--NathanAnderson-unsplash.jpg';
   		} else {
-  			iconAndImage.image = 'assets/images/lucy-chian--unsplash--771.jpg';
+  			iconAndImage.image = 'assets/images/771-Day--LucyChian-unsplash.jpg';
   		}
   		
   	} else if(weatherID == 781) {
   		iconAndImage.icon = "<i class='fad fa-tornado has-text-danger fa-2x'></i>";
-  		iconAndImage.image = 'assets/images/nikolas-noonan--unsplash--781.jpg';
+  		iconAndImage.image = 'assets/images/781-Both--NikolasNoonan-unsplash.jpg';
 
   	} else {
   		// this will also apply to anything
   		// with weather ID 800 (clear skies)
   		if( night ) {
   			iconAndImage.icon = "<i class='fad fa-moon has-text-alert fa-x1'></i>";
-  			iconAndImage.image = 'assets/images/timothee-duran--unsplash--800-night.jpg';
+  			iconAndImage.image = 'assets/images/800-Night--TimotheeDuran-unsplash.jpg';
   			
   		} else {
   			iconAndImage.icon = "<i class='fad fa-sun has-text-alert fa-2x'></i>";
-  			iconAndImage.image = 'assets/images/ritam-baishya--unsplash--800.jpg';
+  			iconAndImage.image = 'assets/images/800-Day--RitamBaishya-unsplash.jpg';
   		}
   	}
   	return iconAndImage;
