@@ -62,16 +62,16 @@ $(document).ready(function() {
 
 	// now for the weather ...
 	function getWeather(thisLocation) {
-    thisLocation = 
+    thisLocation = parseLocation(thisLocation);
 
 		$.ajax({
       url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${thisLocation}`,
       method: "GET"
     }).then(function(response) {
-    	// console.log(response);
+    	console.log(response);
     	// make sure response is 200 (successfully returned data)
     	if(response.cod === 200) {
-    		$("#location").text(thisLocation);
+    		// $("#location").text(thisLocation);
 
 	    	// define variables for data
 	    	var weatherID = response.weather[0].id;
@@ -105,8 +105,6 @@ $(document).ready(function() {
 				getForecast(response.coord.lat, response.coord.lon);
 				updatePreviouslySearched(thisLocation);
 
-    	} else {
-    		alert(`Can't find ${thisLocation}! Please try again.`);
     	}
     });
 	}
@@ -207,6 +205,19 @@ $(document).ready(function() {
 
     });
 	}
+
+  function parseLocation(theLocation) {
+    // if there's a comma, remove everything after it
+    // even though this means you can't search for "London,CAN"
+    // or "Aurora,CO" (errors out anyway), OWM is apparently
+    // *VERY* opinionated and strips things anyway.
+    // EX// London,KY,USA returns London,GB ...
+    if( theLocation.indexOf(",") !== -1 ) {
+      theLocation = theLocation.substring(0, theLocation.indexOf(","));
+    }
+
+    return theLocation;
+  }
 
 	function isNight(sunrise, sunset) {
   	// for calculating whether or not the current time
