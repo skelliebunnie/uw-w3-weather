@@ -14,7 +14,7 @@ $(document).ready(function() {
 	var todayDate = dayjs().format("MM/DD/YYYY");
 
 	var startLocation = "everett";
-	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-last')) || [startLocation, "San Francisco"];
+	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-prev')) || [startLocation, "San Francisco"];
 	if(previouslySearched.length > 1) {
 		startLocation = previouslySearched[0];
 	}
@@ -26,29 +26,11 @@ $(document).ready(function() {
 	// add today's date to the page
 	$("#todayDate").text(`(${todayDate})`);
 	$("#location").text(startLocation);
+	// $("#search").val(startLocation);
+
+	updateNavList(startLocation);
 	
 	$(".location-prev:first").text(startLocation).parents("a.panel-block").attr("data-location", startLocation);
-
-	// loop through the previouslySearched array
-	// starting from index 1 since 0 is in the first
-	// ".location-prev" block and create new blocks
-	// for each of the previously searched locations
-	for(var i = 1; i < previouslySearched.length; i++) {
-		// clone the first block so we don't have to rebuild
-		// all the HTML
-		var original = $("#previouslySearched a:first-child");
-		// this is a "deep clone", otherwise the 
-		// icon in the a.panel-block won't copy
-		// having 'true' in .clone() ensures that bound event handlers
-		// also copy over, so clicking on the new block will work
-		var newBlock = original.clone(true).data("arr", $.extend([], original.data("arr")));
-		// remove the active class, and set the text 
-		// and data-location to this location
-		newBlock.removeClass("is-active").attr("data-location", previouslySearched[i]);
-		newBlock.children(".location-prev").text(previouslySearched[i]);
-		// append the newly cloned element
-		$("#previouslySearched").append(newBlock);
-	}
 
 	// update the dates for the forecast blocks
 	$(".forecast-card").each(function(i,v) {
@@ -75,6 +57,15 @@ $(document).ready(function() {
 		getWeather(newLocation);
 	});
 
+	$("form").on("submit", function(e) {
+		e.preventDefault();
+
+		var searchLocation = $("#search").val();
+		$("#search").val("");
+
+		getWeather(searchLocation);
+	});
+
 	// now for the weather ...
 	function getWeather(thisLocation) {
 		$.ajax({
@@ -82,38 +73,45 @@ $(document).ready(function() {
       method: "GET"
     }).then(function(response) {
     	// console.log(response);
-    	$("#location").text(thisLocation);
+    	// make sure response is 200 (successfully returned data)
+    	if(response.cod === 200) {
+    		$("#location").text(thisLocation);
 
-    	// define variables for data
-    	var weatherID = response.weather[0].id;
-    	var tempMax = (response.main.temp_max).toFixed(1);
-    	var tempMin = (response.main.temp_min).toFixed(1);
-    	var humidity = response.main.humidity + "%";
-    	var windSpeed = response.wind.speed + " MPH";
-    	var sunrise = response.sys.sunrise;
-    	var sunset = response.sys.sunset;
-    	var sunriseFormatted = dayjs(sunrise * 1000).format("h:mm A");
-  		var sunsetFormatted = dayjs(sunset * 1000).format("h:mm A");
+	    	// define variables for data
+	    	var weatherID = response.weather[0].id;
+	    	var tempMax = (response.main.temp_max).toFixed(1);
+	    	var tempMin = (response.main.temp_min).toFixed(1);
+	    	var humidity = response.main.humidity + "%";
+	    	var windSpeed = response.wind.speed + " MPH";
+	    	var sunrise = response.sys.sunrise;
+	    	var sunset = response.sys.sunset;
+	    	var sunriseFormatted = dayjs(sunrise * 1000).format("h:mm A");
+	  		var sunsetFormatted = dayjs(sunset * 1000).format("h:mm A");
 
-    	var night = isNight(sunrise, sunset);
-    	if(night && response['weather'].length > 1) {
-  			weatherID = response.weather[1].id;
-  		}
-    	var iconAndImage = getIconsAndImages(weatherID, night);
+	    	var night = isNight(sunrise, sunset);
+	    	if(night && response['weather'].length > 1) {
+	  			weatherID = response.weather[1].id;
+	  		}
+	    	var iconAndImage = getIconsAndImages(weatherID, night);
 
-    	$("main").css({"background-image": "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("+ iconAndImage.image +")"});
+	    	$("main").css({"background-image": "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url("+ iconAndImage.image +")"});
 
-    	$("#todayWeather .weather-icon").html(iconAndImage.icon);
-    	$("#temp").html(`${tempMax}&deg; F / ${tempMin}&deg; F`);
-    	$("#humidity").text(humidity);
-    	$("#wind").text(windSpeed);
-    	$("#sunrise > p").text(sunriseFormatted);
-    	$("#sunset > p").text(sunsetFormatted);
+	    	$("#todayWeather .weather-icon").html(iconAndImage.icon);
+	    	$("#temp").html(`${tempMax}&deg; F / ${tempMin}&deg; F`);
+	    	$("#humidity").text(humidity);
+	    	$("#wind").text(windSpeed);
+	    	$("#sunrise > p").text(sunriseFormatted);
+	    	$("#sunset > p").text(sunsetFormatted);
 
-    	// uv index is NOT returned in a weather call,
-			// requiring the use of the UVI API
-			getUVI(response.coord.lat, response.coord.lon);
-			getForecast(response.coord.lat, response.coord.lon);
+	    	// uv index is NOT returned in a weather call,
+				// requiring the use of the UVI API
+				getUVI(response.coord.lat, response.coord.lon);
+				getForecast(response.coord.lat, response.coord.lon);
+				updatePreviouslySearched(thisLocation);
+
+    	} else {
+    		alert(`Can't find ${thisLocation}! Please try again.`);
+    	}
     });
 	}
 
@@ -131,19 +129,21 @@ $(document).ready(function() {
 
     	var uvi = $("<p>", {class: "px-4 py-1 is-relative"});
 
-    	if(response.value >= 0 && response.value <= 2) {
+    	var uviValue = Math.ceil(response.value);
+
+    	if(uviValue >= 0 && uviValue <= 2) {
     		uvi.addClass("has-background-success has-text-white");
     		$("#uvi").attr("data-uvi", "low");
 
-    	} else if(response.value >= 3 && response.value <= 5) {
+    	} else if(uviValue >= 3 && uviValue <= 5) {
     		uvi.addClass("has-background-warning");
     		$("#uvi").attr("data-uvi", "moderate");
 
-    	} else if(response.value >= 6 && response.value <= 7) {
+    	} else if(uviValue >= 6 && uviValue <= 7) {
     		uvi.addClass("has-background-danger has-text-white");
     		$("#uvi").attr("data-uvi", "high");
 
-    	} else if(response.value >= 8 && response.value <= 10) {
+    	} else if(uviValue >= 8 && uviValue <= 10) {
     		uvi.addClass("has-background-danger-dark has-text-white");
     		$("#uvi").attr("data-uvi", "very high");
 
@@ -188,7 +188,7 @@ $(document).ready(function() {
     	var night = isNight(response.city.sunrise, response.city.sunset);
 
     	for(var i = 0; i < forecasts.length; i++) {
-    		console.log(forecasts[i]);
+    		// console.log(forecasts[i]);
     		var index = i + 1;
 
     		var iconAndImage = getIconsAndImages(forecasts[i].weather[0].id, night);
@@ -314,7 +314,7 @@ $(document).ready(function() {
   	} else if(weatherID >= 600 && weatherID <= 622) {
   		iconAndImage.icon = $("<i>", {class: 'fad fa-snowflake has-text-info fa-2x'});
   		if(night) {
-  			iconAndImage.image = 'assets/images/600-622-Day--WilliamTopa-unsplash.jpg';
+  			iconAndImage.image = 'assets/images/600-622-Night--WilliamTopa-unsplash.jpg';
   		} else {
   			iconAndImage.image = 'assets/images/600-622-Day--DamianMccoig-unsplash.jpg';
   		}
@@ -354,7 +354,43 @@ $(document).ready(function() {
   	return iconAndImage;
 	}
 
-	getWeather(startLocation);
+	function updatePreviouslySearched(thisLocation) {
+		if(!previouslySearched.includes(thisLocation)) {
+			previouslySearched.unshift(thisLocation);
+		}
 
-	// getForecast();
+		previouslySearched.splice(10);
+
+		localStorage.setItem( "weather-search-prev", JSON.stringify(previouslySearched) );
+
+		updateNavList(thisLocation);
+	}
+
+	function updateNavList(currentLocation) {
+		$("#previouslySearched").empty();
+		// loop through the previouslySearched array
+		// and build a "panel-block" for each
+		for(var i = 0; i < previouslySearched.length; i++) {
+			var panelBlock = $("<a>", {class: "panel-block is-size-4"});
+			panelBlock.attr("data-location", previouslySearched[i]);
+
+			if(currentLocation == previouslySearched[i]) {
+				panelBlock.addClass("is-active");
+			}
+
+			var panelIconContainer = $("<span>", {class: "panel-icon is-size-4"});
+			var panelIcon = $("<i>", {class: "fad fa-search-location"});
+			panelIcon.attr("aria-hidden", "true");
+			panelIconContainer.html(panelIcon);
+
+			var locationName = $("<span>", {class: "location-prev"});
+			locationName.text(previouslySearched[i]);
+
+			panelBlock.append(panelIconContainer, locationName);
+			
+			$("#previouslySearched").append(panelBlock);
+		}
+	}
+
+	getWeather(startLocation);
 });

@@ -33,6 +33,7 @@ main {
 	position: relative;
 }
 
+#search,
 #location,
 .location-prev {
 	text-transform: capitalize;
@@ -43,8 +44,9 @@ main {
 	margin-left: 1rem;
 }
 
-#forecast-title .column {
+#forecast-title .title {
 	background: rgba(255,255,255,0.75);
+	padding: 1rem 0;
 }
 
 .card.forecast-card {
@@ -139,6 +141,10 @@ main {
 @media all and (min-width: 1280px) {
 	#todayWeather {max-width: 55%; }
 	#todayWeather .card-content { padding-left: 3rem; }
+	#forecast-title .title {
+		max-width: 50%;
+		margin: 0 auto;
+	}
 }
 
 @media all and (min-width: 1640px) {
