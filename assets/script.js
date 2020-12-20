@@ -62,6 +62,8 @@ $(document).ready(function() {
 
 	// now for the weather ...
 	function getWeather(thisLocation) {
+    thisLocation = 
+
 		$.ajax({
       url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${thisLocation}`,
       method: "GET"
@@ -419,6 +421,8 @@ $(document).ready(function() {
     $(".modal").removeClass("is-active");
   });
 
+  // https://stackoverflow.com/a/14934355
+  // settings has the URL, xhr has the statusText
   $(document).ajaxError(function(e, xhr, settings, exception) {
     var url = settings["url"];
     var searchTerm = url.substring(url.indexOf("q=") + 2);
