@@ -10,6 +10,14 @@
 	background-color: hsl(48, 100%, 96%);
 }
 
+.fa-half {
+	font-size: 3rem;
+}
+
+.table {
+	width: 100%;
+}
+
 #page-container {
 	min-height: 100%;
 	display: flex;
@@ -39,9 +47,28 @@ main {
 	text-transform: capitalize;
 }
 
-.weather-icon {
-	position: absolute;
+#todayWeather {
+	padding-top: 0;
+	margin: 0 auto;
+	display: inline-block;
+	text-align: center;
+}
+
+#todayWeather .card-content {
+	display: inline-block;
+	width: 100%;
+}
+
+#todayWeather .title {
+	position: relative;
+	vertical-align: top;
+	top: -1rem;
+}
+
+#todayWeather .weather-icon {
+	position: relative;
 	margin-left: 1rem;
+	bottom: -0.5rem;
 }
 
 #forecast-title .title {
@@ -133,20 +160,17 @@ main {
 	}
 }
 
-@media all and (min-width: 1024px) {
-	#todayWeather { max-width: 70%; }
-	#todayWeather .card-content { padding-left: 2.5rem; }
-}
-
 @media all and (min-width: 1280px) {
-	#todayWeather {max-width: 55%; }
-	#todayWeather .card-content { padding-left: 3rem; }
 	#forecast-title .title {
 		max-width: 50%;
 		margin: 0 auto;
 	}
-}
+	#todayWeather {
+		min-width: 50%;
+	}
 
-@media all and (min-width: 1640px) {
-	#todayWeather .card-content { padding-left: 6rem; }
+	#todayWeather table {
+		max-width: 50%;
+		margin: 0 25% 0 auto;
+	}
 }
