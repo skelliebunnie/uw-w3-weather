@@ -40,22 +40,10 @@ $(document).ready(function() {
 	});
 
 	// handle clicking on the previously-searched buttons in the nav
-	$(".panel-block").on("click", function(e) {
-		e.preventDefault();
-		// get the new location to search
-		var newLocation = $(this).attr("data-location");
-		// console.log(newLocation);
-
-		// remove active class from all the other links
-		$(".panel-block").each(function() {
-			$(this).removeClass("is-active");
-		});
-		// make this (the clicked on) link active
-		$(this).addClass("is-active");
-
-		// actually get the weather for the location!
-		getWeather(newLocation);
-	});
+	// $("nav").click(".panel-block", function() {
+	// 	handleNavClick()
+		
+	// });
 
 	$("form").on("submit", function(e) {
 		e.preventDefault();
@@ -357,13 +345,23 @@ $(document).ready(function() {
 	function updatePreviouslySearched(thisLocation) {
 		if(!previouslySearched.includes(thisLocation)) {
 			previouslySearched.unshift(thisLocation);
-		}
 
-		previouslySearched.splice(10);
+      previouslySearched.splice(10);
 
-		localStorage.setItem( "weather-search-prev", JSON.stringify(previouslySearched) );
+      localStorage.setItem( "weather-search-prev", JSON.stringify(previouslySearched) );
 
-		updateNavList(thisLocation);
+      updateNavList(thisLocation);
+
+		} else {
+      $(".panel-block").each(function() {
+        if($(this).attr("data-location") == thisLocation) {
+          $(this).addClass("is-active");
+        } else {
+          $(this).removeClass("is-active");
+        }
+      });
+
+    }
 	}
 
 	function updateNavList(currentLocation) {
@@ -387,6 +385,21 @@ $(document).ready(function() {
 			locationName.text(previouslySearched[i]);
 
 			panelBlock.append(panelIconContainer, locationName);
+      panelBlock.on("click", function() {
+        // get the new location to search
+        var newLocation = $(this).attr("data-location");
+        console.log(newLocation);
+
+        // remove active class from all the other links
+        $(".panel-block").each(function() {
+          $(this).removeClass("is-active");
+        });
+        // make this (the clicked on) link active
+        $(this).addClass("is-active");
+
+        // actually get the weather for the location!
+        getWeather(newLocation);
+      });
 			
 			$("#previouslySearched").append(panelBlock);
 		}
