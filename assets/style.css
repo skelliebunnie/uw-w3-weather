@@ -158,6 +158,12 @@ main {
 	padding-right: 2rem;
 }
 
+
+.modal {
+	background: rgba(74,74,74, 0.75);
+}
+
+
 /* MEDIA QUERIES */
 @media all and (max-width: 526px) {
 	.columns.is-multiline .column {
@@ -186,6 +192,10 @@ main {
 		width: 100%;
 		padding-right: 2rem;
 	}
+
+	#errorMessage {
+		font-size: 2rem;
+	}
 }
 
 @media all and (max-width: 1400px) {
@@ -208,4 +218,9 @@ main {
 		max-width: 50%;
 		margin: 0 25% 0 auto;
 	}
+
+	#errorMessage {
+		font-size: 3rem;
+	}
+
 }

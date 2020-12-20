@@ -414,4 +414,17 @@ $(document).ready(function() {
 	}
 
 	getWeather(startLocation);
+
+  $(".modal, body").click(function() {
+    $(".modal").removeClass("is-active");
+  });
+
+  $(document).ajaxError(function(e, xhr, settings, exception) {
+    var url = settings["url"];
+    var searchTerm = url.substring(url.indexOf("q=") + 2);
+    var errorMsg = xhr.statusText;
+    
+    $("#errorMessage").html(`"${searchTerm}"<br>${errorMsg}`);
+    $(".modal").addClass("is-active");
+  });
 });
