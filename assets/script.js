@@ -426,11 +426,10 @@ $(document).ready(function() {
     // var locationArray = thisLocation.split(",");
     var index = previouslySearched.indexOf(thisLocation);
     
-
     // if we didn't find the location in the above specific checks,
     // add it to the beginning of the previouslySearched array
     // and then "trim" the array to 10 items before saving/updating
-		if(previouslySearched.includes(thisLocation)) {
+		if(!previouslySearched.includes(thisLocation)) {
 			previouslySearched.unshift(thisLocation);
 
       previouslySearched.splice(10);
