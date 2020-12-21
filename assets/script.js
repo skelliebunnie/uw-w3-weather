@@ -20,7 +20,6 @@ $(document).ready(function() {
   var currentTime = dayjs().format("h:mm A") +" "+ timezone;
 
 	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-prev')) || ["EVERETT,WA,US"];
-	startLocation = previouslySearched[0];
 
 	// adding units=imperial returns temps in Farenheit
 	// and wind in MPH, so no conversion math required!
@@ -28,13 +27,13 @@ $(document).ready(function() {
 
 	// add today's date to the page
 	$("#todayDate").text(`(${todayDate})`);
-	$("#location").text(startLocation);
+	$("#location").text(previouslySearched[0]);
   $("#currentTime").text(currentTime);
 	// $("#search").val(startLocation);
 
-	updateNavList(startLocation);
+	updateNavList(previouslySearched[0]);
 	
-	$(".location-prev:first").text(startLocation).parents("a.panel-block").attr("data-location", startLocation);
+	$(".location-prev:first").text(titleCase(previouslySearched[0]), null).parents("a.panel-block").attr("data-location", previouslySearched[0]);
 
 	// update the dates for the forecast blocks
 	$(".forecast-card").each(function(i,v) {
@@ -60,24 +59,18 @@ $(document).ready(function() {
 
 	// now for the weather ...
 	function getWeather(thisLocation) {
-    thisLocation = parseLocation(thisLocation);
+    parsedLocation = parseLocation(thisLocation);
+    // console.log(thisLocation);
 
 		$.ajax({
-      url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${thisLocation}`,
+      url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${parsedLocation}`,
       method: "GET"
     }).then(function(response) {
-    	// console.log(response);
+    	console.log(response);
 
     	// make sure response is 200 (successfully returned data)
     	if(response.cod === 200) {
-        var locationTitle = thisLocation;
-    		if(thisLocation.indexOf(",") > -1) {
-          locationTitle = titleCase(thisLocation.substring(0, thisLocation.indexOf(","))) + thisLocation.substring(thisLocation.indexOf(","));
-          locationTitle = locationTitle.replace(/\,/g, ", ");
-          
-        } else {
-          locationTitle = `${locationTitle}, ${response.sys.country}`;
-        }
+        var locationTitle = titleCase(parsedLocation, response.sys.country);
         $("#location").text(`${locationTitle}`);
 
 	    	// define variables for data
@@ -110,7 +103,7 @@ $(document).ready(function() {
 				// requiring the use of the UVI API
 				getUVI(response.coord.lat, response.coord.lon);
 				getForecast(response.coord.lat, response.coord.lon);
-				updatePreviouslySearched(thisLocation);
+				updatePreviouslySearched(locationTitle);
 
     	}
     });
@@ -236,9 +229,14 @@ $(document).ready(function() {
       // set theLocation to just the first part
       theLocation = locationArray[0].trim();
 
-      // first check to see if the length is 3 params
+      // quick check to see if the 2nd param is CAN (so we can get
+      // Toronto, CANADA instead of Toronto, CALIFORNIA)
+      if(locationArray.length === 2 && locationArray[1] === "CAN") {
+        theLocation += ", CA"; // we do need an Alpha-2 country code
+      }
+      // *then* check to see if the length is 3 params
       // and if the 2nd param is in the states list - if true, we're in the US!
-      if( (locationArray.length === 3 || locationArray.length === 2) && stateAbbreviations.includes(locationArray[1].trim().toUpperCase()) ) {
+      else if( (locationArray.length === 3 || locationArray.length === 2) && stateAbbreviations.includes(locationArray[1].trim().toUpperCase()) ) {
         theLocation += `,${locationArray[1].trim().toUpperCase()},US`;
 
       } else if(locationArray.length === 3 && !stateAbbreviations.includes(locationArray[1].trim().toUpperCase())) {
@@ -423,13 +421,16 @@ $(document).ready(function() {
   }
 
 	function updatePreviouslySearched(thisLocation) {
+    // console.log(thisLocation);
     thisLocation = thisLocation.split(", ").join(",").toUpperCase();
+    // var locationArray = thisLocation.split(",");
     var index = previouslySearched.indexOf(thisLocation);
+    
 
     // if we didn't find the location in the above specific checks,
     // add it to the beginning of the previouslySearched array
     // and then "trim" the array to 10 items before saving/updating
-		if(!previouslySearched.includes(thisLocation)) {
+		if(previouslySearched.includes(thisLocation)) {
 			previouslySearched.unshift(thisLocation);
 
       previouslySearched.splice(10);
@@ -446,7 +447,9 @@ $(document).ready(function() {
       // rearrange list to put the currently selected one at the top,
       // but no need to update the nav -- just the saved list
       // the nav list will update on page refresh
-      var newFirstLocation = previouslySearched.slice(index, index + 1)[0];
+
+      // var newFirstLocation = previouslySearched.slice(index, index + 1)[0];
+      var newFirstLocation = previouslySearched[index];
       previouslySearched.splice(index, 1);
       previouslySearched.unshift(newFirstLocation);
 
@@ -470,15 +473,7 @@ $(document).ready(function() {
 		// and build a "panel-block" for each
 		for(var i = 0; i < previouslySearched.length; i++) {
       var locationName = previouslySearched[i],
-      locationTitle = locationName;
-
-      if(locationTitle.indexOf(",") > -1) {
-        locationTitle = locationTitle.split(",");
-        locationTitle[0] = titleCase(locationTitle[0]);
-        locationTitle = locationTitle.join(", ");
-      } else {
-        locationTitle = titleCase(locationTitle);
-      }
+      locationTitle = titleCase(locationName, null);
 
 			var panelBlock = $("<a>", {class: "panel-block is-size-4"});
 			panelBlock.attr("data-location", locationName);
@@ -494,9 +489,10 @@ $(document).ready(function() {
 
 			var locationNameSpan = $("<span>", {class: "location-prev"});
 			locationNameSpan.html(locationTitle);
-      console.log(locationNameSpan);
+      // console.log(locationTitle);
 
 			panelBlock.append(panelIconContainer, locationNameSpan);
+
       // add click Event Handlers to the panels as they're created
       // otherwise they won't work (b/c they're created dynamically)
       panelBlock.on("click", function() {
@@ -519,20 +515,62 @@ $(document).ready(function() {
 		}
 	}
 
-  function titleCase(titleString) {
-    titleString = titleString.toLowerCase();
-    returnString = "";
+  function titleCase(titleString, country=null) {
+    var titleArray = [];
+    var returnString = "";
 
-    if(titleString.indexOf(" ") > -1) {
-      var titleArray = titleString.split(" ");
-      titleArray.forEach(function(str, i) {
-        returnString += " " + str.substring(0,1).toUpperCase() + str.substring(1);
-      });
+    // if there are commas, we need to address each piece separately
+    // the first one is going to be title cased, but not the others
+    if(titleString.indexOf(",") > -1) {
+      titleArray = titleString.split(",");
 
-    } else {
-      returnString = titleString.substring(0,1).toUpperCase() + titleString.substring(1);
+      // check for spaces in the City Name;
+      // if there are spaces, address the words separately!
+      if(titleArray[0].indexOf(" ") > -1) {
+        // get the 1st item in the array and split it at the spaces
+        var titleArraySecondary = titleArray[0].split(" ");
+        titleArray[0] = "";
+        titleArraySecondary.forEach(function(str, i) {
+          str = str.toLowerCase();
+          titleArray[0] += " " + str.substring(0,1).toUpperCase() + str.substring(1);
+        });
+
+      }
+      // if there are no spaces in the City Name,
+      // we still need to capitalize the 1st letter and make
+      // the rest of the string lowercase!
+      else {
+        titleArray[0] = titleArray[0].substring(0,1).toUpperCase() + titleArray[0].substring(1).toLowerCase();
+      }
+
+      returnString = titleArray.join(", ");
+
+    } 
+    // if there are no commas BUT there are spaces
+    // handle the separate words separately!
+    else if(titleString.indexOf(",") == -1 && titleString.indexOf(" ") > -1) {
+      if(titleString.indexOf(" ") > -1) {
+        // get the 1st item in the array and split it at the spaces
+        titleArray = titleString.split(" ");
+
+        titleArray.forEach(function(str, i) {
+          returnString += " " + str.substring(0,1).toUpperCase() + str.substring(1).toLowerCase();
+        });
+
+      }
+    }
+    // if there are no commas AND no spaces
+    // it's just a standalone, single string
+    else {
+      returnString = titleString.substring(0,1).toUpperCase() + titleString.substring(1).toLowerCase();
     }
 
+    if(titleString.indexOf(",") === -1 && country !== null) {
+      returnString += `, ${country}`;
+    }
+
+    // using .trim() removes any extra space on the ends of the string
+    // *without* removing internal spaces (bounded by characters)
     return returnString.trim();
   }
 
