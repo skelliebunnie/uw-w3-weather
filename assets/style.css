@@ -1,22 +1,117 @@
-.has-text-alert { color: #FF8F39; }
-.has-background-alert { background-color: #FF8F39; }
-.has-text-alert-dark { color: #f74d00; }
-.has-background-alert-dark { background-color: #f74d00; }
-
-.has-text-violet { color: #B567A4; }
-.has-background-violet { background-color: #B567A4; }
-
-.is-active {
-	background-color: hsl(48, 100%, 96%);
+:root {
+	--yellow: #ffffa1;
+	--yellowDark: #b6da00;
+	--yellowLight: #ffffe2;
+	--alert: #FF8F39;
+	--alertDark: #f74d00;
+	--violet: #B567A4;
+	--primary: #00d1b2;
+	--info: hsl(204, 86%, 53%);
 }
 
-.fa-half {
-	font-size: 3rem;
+.has-text-moon { color: var(--yellow); }
+.has-text-moon-light { color: var(--yellowLight); }
+.has-text-alert { color: var(--alert); }
+.has-background-alert { background-color: var(--alert); }
+.has-text-alert-dark { color: var(--alertDark); }
+.has-background-alert-dark { background-color: var(--alertDark); }
+
+.has-text-violet { color: var(--violet); }
+.has-background-violet { background-color: var(--violet); }
+
+.panel-block { position: relative; }
+
+.panel-block.is-active {
+	background-color: var(--yellowLight);
 }
 
-.table {
-	width: 100%;
+/* this is for a *static* double-right-chevron on the selected block */
+.panel-block.is-active::before,
+.panel-block.is-active::after {
+	font-family: "Font Awesome 5 Duotone";
+	font-weight: 900;
+	color: var(--primary);
+
+	position: absolute;
+	right: 1.25rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	text-align: center;
 }
+
+/* 
+	animating the icon moving back and forth
+	https://codepen.io/frankDraws/pen/rxaPzQ
+*/
+/* this is for the *animated* double-right-chevron on hover */
+.panel-block:hover::before,
+.panel-block:hover::after {
+	font-family: "Font Awesome 5 Duotone";
+	font-weight: 900;
+	color: var(--primary);
+
+	position: absolute;
+	right: 1.25rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 1.25rem;
+	text-align: center;
+	transition: position 0.3s ease-in-out;
+	animation: backAndForth 2s infinite;
+}
+
+.panel-block.is-active::before,
+.panel-block:hover::before {
+	opacity: 1;
+	content: "\f324";
+}
+
+.panel-block.is-active::after,
+.panel-block:hover::after {
+	opacity: 0.4;
+	content: "\10f324";
+}
+
+@keyframes backAndForth {
+	0% {
+		right: 2rem;
+	}
+	50% {
+		right: 1rem;
+	}
+	100% {
+		right: 2rem;
+	}
+}
+
+.fa-half { font-size: 3rem; }
+
+.fad.fa-cloud-sun::after,
+.fad.fa-clouds-sun::after {
+	color: var(--alert); 
+	opacity: 0.8;
+}
+
+.fad.fa-wind,
+.fad.fa-cloud-sleet::after,
+.fad.fa-cloud-drizzle::after,
+.fad.fa-cloud-showers::after,
+.fad.fa-cloud-sun-rain::after,
+.fad.fa-cloud-moon-rain::after {
+	color: var(--info);
+	opacity: 1;
+}
+
+.fad.fa-cloud-moon::after,
+.fad.fa-clouds-moon::after,
+.fad.fa-thunderstorm-moon::after,
+.fad.fa-thunderstorm-sun::after {
+	color: var(--yellow);
+	opacity: 1;
+}
+
+.table { width: 100%; }
 
 #page-container {
 	min-height: 100%;
@@ -91,6 +186,11 @@ main {
 	bottom: -0.5rem;
 }
 
+#todayWeather .fad.fa-moon {
+	-webkit-text-stroke: 3px rgba(70, 130, 180, 1);
+	-webkit-text-fill-color: var(--yellowLight);
+}
+
 #forecast-title .title {
 	background: rgba(255,255,255,0.75);
 	padding: 1rem 0;
@@ -143,7 +243,7 @@ main {
 }
 
 .forecast-card .card-image img {
-	filter: brightness(1.25) contrast(1.2) grayscale(0.5);
+	/*filter: contrast(150%) grayscale(0.5);*/
 }
 
 .column {

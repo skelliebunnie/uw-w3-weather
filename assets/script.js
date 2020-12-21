@@ -16,13 +16,11 @@ $(document).ready(function() {
   // https://stackoverflow.com/a/34405528
   var timezone = new Date().toLocaleTimeString('en-us', {timeZoneName: 'short'}).split(' ')[2];
 
+  // dayjs().add($num, 'hour') to test opposite time settings() (e.g. night)
   var currentTime = dayjs().format("h:mm A") +" "+ timezone;
 
-	var startLocation = "everett";
-	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-prev')) || [startLocation, "San Francisco"];
-	if(previouslySearched.length > 1) {
-		startLocation = previouslySearched[0];
-	}
+	var previouslySearched = JSON.parse(localStorage.getItem('weather-search-prev')) || ["EVERETT,WA,US"];
+	startLocation = previouslySearched[0];
 
 	// adding units=imperial returns temps in Farenheit
 	// and wind in MPH, so no conversion math required!
@@ -68,10 +66,19 @@ $(document).ready(function() {
       url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${thisLocation}`,
       method: "GET"
     }).then(function(response) {
-    	console.log(response);
+    	// console.log(response);
+
     	// make sure response is 200 (successfully returned data)
     	if(response.cod === 200) {
-    		// $("#location").text(thisLocation);
+        var locationTitle = thisLocation;
+    		if(thisLocation.indexOf(",") > -1) {
+          locationTitle = titleCase(thisLocation.substring(0, thisLocation.indexOf(","))) + thisLocation.substring(thisLocation.indexOf(","));
+          locationTitle = locationTitle.replace(/\,/g, ", ");
+          
+        } else {
+          locationTitle = `${locationTitle}, ${response.sys.country}`;
+        }
+        $("#location").text(`${locationTitle}`);
 
 	    	// define variables for data
 	    	var weatherID = response.weather[0].id;
@@ -188,7 +195,7 @@ $(document).ready(function() {
     		var iconAndImage = getIconsAndImages(forecasts[i].weather[0].id, night);
     		var icon = iconAndImage.icon;
     		icon.removeClass('fa-2x has-text-primary has-text-info has-text-grey has-text-grey-dark has-text-grey-darker');
-    		if(!icon.hasClass('has-text-white')) {
+    		if(!icon.hasClass('has-text-white') && !icon.hasClass("has-text-alert") && !icon.hasClass("has-text-moon")) {
     			icon.addClass('has-text-white');
     		}
     		
@@ -207,13 +214,61 @@ $(document).ready(function() {
 	}
 
   function parseLocation(theLocation) {
-    // if there's a comma, remove everything after it
-    // even though this means you can't search for "London,CAN"
-    // or "Aurora,CO" (errors out anyway), OWM is apparently
-    // *VERY* opinionated and strips things anyway.
-    // EX// London,KY,USA returns London,GB ...
+    // OK, more research has uncovered something:
+    // using 2 parameters it's read as City, Country
+    // using 3 is City, State, Country
+    // if you put in London, KY you get an error - there is no country "KY"
+    // you need London, KY, US to NOT get London, GB
+    // if you search London, US, you should get a list of all cities in the US
+    // named "London"; the API only returns the FIRST result
+    // (which happens to be London, OH, US)
+    // all of this means that we can let users input 2 params and
+    // check against Alpha-2 Country codes / State codes
+    // (start with state codes rather than country codes)
+    // and 3 params (and check 2d against state abbreviations)
+    var stateAbbreviations = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+    var countryCodes = ["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"];
+
     if( theLocation.indexOf(",") !== -1 ) {
-      theLocation = theLocation.substring(0, theLocation.indexOf(","));
+      // create an array of the pieces
+      locationArray = theLocation.split(",");
+      
+      // set theLocation to just the first part
+      theLocation = locationArray[0].trim();
+
+      // first check to see if the length is 3 params
+      // and if the 2nd param is in the states list - if true, we're in the US!
+      if( (locationArray.length === 3 || locationArray.length === 2) && stateAbbreviations.includes(locationArray[1].trim().toUpperCase()) ) {
+        theLocation += `,${locationArray[1].trim().toUpperCase()},US`;
+
+      } else if(locationArray.length === 3 && !stateAbbreviations.includes(locationArray[1].trim().toUpperCase())) {
+        // if the length is 3 but we couldn't find the state in the states list
+        // BUT the 3rd param is US/USA, just cut out the state and default
+        // to whatever the 1st result is that OWM is going to return
+        if(locationArray[2].trim().toUpperCase() === "US" || locationArray[2].trim().toUpperCase() === "USA") {
+          theLocation += ",US";
+        }
+        // if, however, both the 2d param is NOT in the states list AND
+        // the 2d param is in the countries list, drop the 2d param
+        else if(countryCodes.includes(locationArray[1].trim().toUpperCase())) {
+          theLocation += `,${locationArray[1].trim().toUpperCase()}`;
+
+        }
+        // barring all that, if the 3d param is in the countries list
+        // (bearing in mind we already checked for states)
+        // use the 3d param only and drop the 2d
+        else if(countryCodes.includes(locationArray[2].trim().toUpperCase())) {
+          theLocation += `,${locationArray[2].trim().toUpperCase()}`;
+
+        }
+
+      }
+      // finally, if the length of locationArray is just 2 AND the 2d param is
+      // NOT in the states list, it must be a country so we can just use that
+      else if(locationArray.length === 2 || !stateAbbreviations.includes(locationArray[1].trim().toUpperCase())) {
+        theLocation += `,${locationArray[1].trim().toUpperCase()}`;
+
+      }
     }
 
     return theLocation;
@@ -248,7 +303,7 @@ $(document).ready(function() {
   	// also assign background image to <main>
   	if(weatherID == 801) {
   		if(night) {
-  			iconAndImage.icon = $("<i>", {class: "fad fa-cloud-moon has-text-moon has-text-grey " + iconSize});
+  			iconAndImage.icon = $("<i>", {class: "fad fa-cloud-moon has-text-grey " + iconSize});
   			iconAndImage.image = 'assets/images/801-802-Night--KellySikkema-unsplash.jpg';
 
   		} else {
@@ -272,7 +327,7 @@ $(document).ready(function() {
   			iconAndImage.image = 'assets/images/803-804-Night--Swaminathan-flickr.jpg';
 
   		} else {
-  			iconAndImage.image = 'assets/images/803-804-Day--MatthewPaulArgall-flickr.jpg';
+  			iconAndImage.image = 'assets/images/803-804-Day--BarrySimon-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 500 && weatherID <= 504) {
@@ -352,7 +407,7 @@ $(document).ready(function() {
   		// this will also apply to anything
   		// with weather ID 800 (clear skies)
   		if( night ) {
-  			iconAndImage.icon = $("<i>", {class: 'fad fa-moon has-text-alert fa-x1'});
+  			iconAndImage.icon = $("<i>", {class: 'fad fa-moon has-text-moon ' + iconSize});
   			iconAndImage.image = 'assets/images/800-Night--TimotheeDuran-unsplash.jpg';
   			
   		} else {
@@ -363,17 +418,40 @@ $(document).ready(function() {
   	return iconAndImage;
 	}
 
+  function saveSearchList(list) {
+    localStorage.setItem( "weather-search-prev", JSON.stringify(list) );
+  }
+
 	function updatePreviouslySearched(thisLocation) {
+    thisLocation = thisLocation.split(", ").join(",").toUpperCase();
+    var index = previouslySearched.indexOf(thisLocation);
+
+    // if we didn't find the location in the above specific checks,
+    // add it to the beginning of the previouslySearched array
+    // and then "trim" the array to 10 items before saving/updating
 		if(!previouslySearched.includes(thisLocation)) {
 			previouslySearched.unshift(thisLocation);
 
       previouslySearched.splice(10);
 
-      localStorage.setItem( "weather-search-prev", JSON.stringify(previouslySearched) );
+      saveSearchList(previouslySearched);
 
       updateNavList(thisLocation);
 
-		} else {
+		}
+    // this assumes we DID find the location in the previouslySearched Array
+    // so we just want to move it to the beginning then save the list to localStorage
+    // and add the is-active class to the appropriate panel-block
+    else {
+      // rearrange list to put the currently selected one at the top,
+      // but no need to update the nav -- just the saved list
+      // the nav list will update on page refresh
+      var newFirstLocation = previouslySearched.slice(index, index + 1)[0];
+      previouslySearched.splice(index, 1);
+      previouslySearched.unshift(newFirstLocation);
+
+      saveSearchList(previouslySearched);
+
       $(".panel-block").each(function() {
         if($(this).attr("data-location") == thisLocation) {
           $(this).addClass("is-active");
@@ -387,11 +465,23 @@ $(document).ready(function() {
 
 	function updateNavList(currentLocation) {
 		$("#previouslySearched").empty();
+
 		// loop through the previouslySearched array
 		// and build a "panel-block" for each
 		for(var i = 0; i < previouslySearched.length; i++) {
+      var locationName = previouslySearched[i],
+      locationTitle = locationName;
+
+      if(locationTitle.indexOf(",") > -1) {
+        locationTitle = locationTitle.split(",");
+        locationTitle[0] = titleCase(locationTitle[0]);
+        locationTitle = locationTitle.join(", ");
+      } else {
+        locationTitle = titleCase(locationTitle);
+      }
+
 			var panelBlock = $("<a>", {class: "panel-block is-size-4"});
-			panelBlock.attr("data-location", previouslySearched[i]);
+			panelBlock.attr("data-location", locationName);
 
 			if(currentLocation == previouslySearched[i]) {
 				panelBlock.addClass("is-active");
@@ -402,14 +492,17 @@ $(document).ready(function() {
 			panelIcon.attr("aria-hidden", "true");
 			panelIconContainer.html(panelIcon);
 
-			var locationName = $("<span>", {class: "location-prev"});
-			locationName.text(previouslySearched[i]);
+			var locationNameSpan = $("<span>", {class: "location-prev"});
+			locationNameSpan.html(locationTitle);
+      console.log(locationNameSpan);
 
-			panelBlock.append(panelIconContainer, locationName);
+			panelBlock.append(panelIconContainer, locationNameSpan);
+      // add click Event Handlers to the panels as they're created
+      // otherwise they won't work (b/c they're created dynamically)
       panelBlock.on("click", function() {
         // get the new location to search
         var newLocation = $(this).attr("data-location");
-        console.log(newLocation);
+        // console.log(newLocation);
 
         // remove active class from all the other links
         $(".panel-block").each(function() {
@@ -426,7 +519,22 @@ $(document).ready(function() {
 		}
 	}
 
-	getWeather(startLocation);
+  function titleCase(titleString) {
+    titleString = titleString.toLowerCase();
+    returnString = "";
+
+    if(titleString.indexOf(" ") > -1) {
+      var titleArray = titleString.split(" ");
+      titleArray.forEach(function(str, i) {
+        returnString += " " + str.substring(0,1).toUpperCase() + str.substring(1);
+      });
+
+    } else {
+      returnString = titleString.substring(0,1).toUpperCase() + titleString.substring(1);
+    }
+
+    return returnString.trim();
+  }
 
   $(".modal, body").click(function() {
     $(".modal").removeClass("is-active");
@@ -442,4 +550,6 @@ $(document).ready(function() {
     $("#errorMessage").html(`"${searchTerm}"<br>${errorMsg}`);
     $(".modal").addClass("is-active");
   });
+
+  getWeather(previouslySearched[0]);
 });
