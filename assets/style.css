@@ -121,8 +121,11 @@
 }
 
 #page-container > .header,
-#page-container > .main-content,
 #page-container > .footer {
+	flex: 0;
+}
+
+#page-container > .main-content {
 	flex: 1;
 }
 
@@ -242,8 +245,8 @@ main {
 	padding: 0.8rem 1rem 0 0;
 }
 
-.forecast-card .card-image img {
-	/*filter: contrast(150%) grayscale(0.5);*/
+.forecast-card .card-content {
+	padding: 0.15rem;
 }
 
 .column {

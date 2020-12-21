@@ -303,11 +303,11 @@ $(document).ready(function() {
   	// also assign background image to <main>
   	if(weatherID == 801) {
   		if(night) {
-  			iconAndImage.icon = $("<i>", {class: "fad fa-cloud-moon has-text-grey " + iconSize});
+  			iconAndImage.icon = $("<i>", {class: "fad fa-cloud-moon has-text-grey-dark " + iconSize});
   			iconAndImage.image = 'assets/images/801-802-Night--KellySikkema-unsplash.jpg';
 
   		} else {
-  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sun has-text-grey ' + iconSize});
+  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sun has-text-grey-dark ' + iconSize});
   			iconAndImage.image = 'assets/images/801-Day--EthanMedrano-unsplash.jpg';
   		}
 
@@ -331,7 +331,7 @@ $(document).ready(function() {
   		}
   		
   	} else if(weatherID >= 500 && weatherID <= 504) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-showers has-text-info ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-showers has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/500-504-Night--VVNincic-flickr.jpg';
   		} else {
@@ -339,7 +339,7 @@ $(document).ready(function() {
   		}
   		
   	} else if(weatherID == 511) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sleet has-text-info-dark ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sleet has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/522-Night--Isengardt-flickr.jpg';
   		} else {
@@ -349,16 +349,16 @@ $(document).ready(function() {
   	} else if(weatherID >= 520 && weatherID <= 531) {
   		
   		if(night) {
-  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-moon-rain has-text-info-dark ' + iconSize});
+  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-moon-rain has-text-grey-dark ' + iconSize});
   			iconAndImage.image = 'assets/images/520-531-Night--min33NY-flickr.jpg';
 
   		} else {
-  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sun-rain has-text-info-dark ' + iconSize});
+  			iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-sun-rain has-text-grey-dark ' + iconSize});
   			iconAndImage.image = 'assets/images/520-531-Day--LorenGu-unsplash.jpg';
   		}
   		
   	} else if(weatherID >= 300 && weatherID <= 321) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-drizzle has-text-info ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-cloud-drizzle has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/300-321-Night--CaydenHuang-unsplash.jpg';
   		} else {
@@ -368,7 +368,7 @@ $(document).ready(function() {
   	} else if(weatherID >= 200 && weatherID <= 232) {
   		
   		if(night) {
-  			iconAndImage.icon = $("<i>", {class: 'fad fa-thunderstorm-moon has-text-black ' + iconSize});
+  			iconAndImage.icon = $("<i>", {class: 'fad fa-thunderstorm-moon has-text-grey-dark ' + iconSize});
   			iconAndImage.image = 'assets/images/200-232-Night--LeftyKasdaglis-unsplash.jpg';
   		} else {
   			iconAndImage.icon = $("<i>", {class: 'fad fa-thunderstorm-sun has-text-black ' + iconSize});
@@ -376,7 +376,7 @@ $(document).ready(function() {
   		}
   		
   	} else if(weatherID >= 600 && weatherID <= 622) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-snowflake has-text-info ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-snowflake has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/600-622-Night--WilliamTopa-unsplash.jpg';
   		} else {
@@ -384,7 +384,7 @@ $(document).ready(function() {
   		}
 
   	} else if(weatherID >= 701 && weatherID <= 762) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-fog has-text-grey ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-fog has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/701-762-Night--ChandlerCruttenden-unsplash.jpg';
   		} else {
@@ -392,7 +392,7 @@ $(document).ready(function() {
   		}
   		
   	} else if(weatherID == 771) {
-  		iconAndImage.icon = $("<i>", {class: 'fad fa-wind has-text-grey ' + iconSize});
+  		iconAndImage.icon = $("<i>", {class: 'fad fa-wind has-text-grey-dark ' + iconSize});
   		if(night) {
   			iconAndImage.image = 'assets/images/771-Night--NathanAnderson-unsplash.jpg';
   		} else {
