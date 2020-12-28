@@ -48,14 +48,23 @@ $(document).ready(function() {
 		
 	// });
 
+	$(".fa-search").click(function() {
+		search();
+	});
+
 	$("form").on("submit", function(e) {
 		e.preventDefault();
+
+		search();
+	});
+
+	function search() {
 
 		var searchLocation = $("#search").val();
 		$("#search").val("");
 
 		getWeather(searchLocation);
-	});
+	}
 
 	// now for the weather ...
 	function getWeather(thisLocation) {
