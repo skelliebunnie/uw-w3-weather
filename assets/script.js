@@ -72,7 +72,7 @@ $(document).ready(function() {
     // console.log(thisLocation);
 
 		$.ajax({
-      url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${parsedLocation}`,
+      url: `${queryURL}weather?appid=${apiKey}&units=imperial&q=${thisLocation}`,
       method: "GET"
     }).then(function(response) {
     	console.log(response);
