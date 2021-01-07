@@ -255,6 +255,10 @@ main {
 	padding: 0.15rem;
 }
 
+aside.column > section.container {
+	margin-bottom: 3rem;
+}
+
 .column {
 	position: relative;
 }
